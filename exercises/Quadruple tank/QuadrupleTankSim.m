@@ -44,26 +44,32 @@ x(:, 1) = [h10; h20; h30; h40];
 u = zeros(2, tf);
 u(:, 1) = [F1; F2];
 
-if strcmp(controller, 'PI')
-    % Implement PI controller
-elseif strcmp(controller, 'P')
-    % Implement P controller
-else 
-    % No controller, assume constant flow-rate for entire time-frame
-    for k =1:tf
-        u(:, k) = [F1; F2];
-    end
-end
 
 % Simulating
 
 % Sum dummy options
 ODEoptions = odeset();
 
-for k = 2:tf-1
+for k =1:tf-1
+    %-------------------------
+    % Controller output 
+    %-------------------------
+    if strcmp(controller, 'PI')
+        % Implement PI controller
+        u(:, k) = PIControl();
+    elseif strcmp(controller, 'P')
+        % Implement P controller
+        u(:, k) = PControl();
+    else 
+        % No controller, assume constant flow-rate for entire time-frame
+        u(:, k) = [F1; F2];
+    end
+    %-------------------------
+    % Simulate process   
+    %-------------------------    
     [~, X] = ode15s(@QuadrupleTankProcess,...
-     [t(k) t(k+1)], x(:,k), ODEoptions, u(:, k), p);
-     x(:, k+1) = X(end, :)';
+    [t(k) t(k+1)], x(:,k), ODEoptions, u(:, k), p);
+    x(:, k+1) = X(end, :)';
 end 
 
 

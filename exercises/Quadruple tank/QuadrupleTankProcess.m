@@ -1,27 +1,43 @@
-function xdot = QuadrupleTankProcess(t, x_k, u_k, p)
+function xdot = QuadrupleTankProcess(t, x, u, p)
+    %{
+        Process Model for the simple 4-tank system.
 
-    % p = [a1; a2; a3; a4; A1; A2; A3; A4; g; gamma1; gamma2];
-    a1 = p(1);
-    a2 = p(2);
-    a3 = p(3);
-    a4 = p(4);
-    A1 = p(5);
-    A2 = p(6);
-    A3 = p(7);
-    A4 = p(8);
-    g = p(9);
-    gamma1 = p(10);
-    gamma2 = p(11);
+        Implements a differential equation model for the 4-tank system.
 
-    F1 = u_k(1);
-    F2 = u_k(2);
+        Inputs:
+            - x_k: Current mass values for each tank.
+            - u_k: Current controller value (I.e., flow rates)
+            - p: Parameters
+        Outputs:
+            - xdot: Derivative of mass w.r.t time
+    %}
 
-    xdot = zeros(4, 1);
-
-    xdot(1) = (gamma1/A1)*F1 + (a3/A1)*sqrt(2*g*x_k(3)) - (a1/A1)*sqrt(2*g*x_k(1));
-    xdot(2) = (gamma2/A2)*F2 + (a4/A2)*sqrt(2*g*x_k(4)) - (a2/A2)*sqrt(2*g*x_k(2));
-    xdot(3) = F2*(1-gamma2)/A3 - (a3/A3)*sqrt(2*g*x_k(3));
-    xdot(4) = F1*(1-gamma1)/A4 - (a4/A4)*sqrt(2*g*x_k(4));
-
-
+     
+    % Unpacking states, parameters
+    a = p(1:4); % Pipe cross sectional areas [cm2]
+    A = p(5:8); % Tank cross sectional areas [cm2]
+    g = p(9); % Acceleration of gravity [cm/s2]
+    gamma = p(10:11); % Valve positions [-]
+    rho = p(12); % Density of water [g/cm3]
+    F = u; % Flow rates in pumps [cm3/s]
+    m = x; % Mass of liquid in each tank [g]
+    
+    % Heights
+    h = m./(rho*A); % Liquid level in each tank [cm]
+    % Outflows
+    qout = a.*sqrt(2*g*h); % Outflow from each tank [cm3/s]
+    
+    % Inflow
+    qin = zeros(4, 1);
+    qin(1,1) = gamma(1)*F(1); % Inflow from valve 1 to tank 1 [cm3/s]
+    qin(2,1) = gamma(2)*F(2); % Inflow from valve 2 to tank 2 [cm3/s]
+    qin(3,1) = (1-gamma(2))*F(2); % Inflow from valve 2 to tank 3 [cm3/s]
+    qin(4,1) = (1-gamma(1))*F(1); % Inflow from valve 1 to tank 4 [cm3/s]
+    
+    % Differential equations
+    xdot = zeros(4,1);
+    xdot(1,1) = rho*(qin(1,1)+qout(3,1)-qout(1,1)); % Mass balance Tank 1
+    xdot(2,1) = rho*(qin(2,1)+qout(4,1)-qout(2,1)); % Mass balance Tank 2
+    xdot(3,1) = rho*(qin(3,1)-qout(3,1)); % Mass balance Tank 3
+    xdot(4,1) = rho*(qin(4,1)-qout(4,1)); % Mass balance Tank 4
 end

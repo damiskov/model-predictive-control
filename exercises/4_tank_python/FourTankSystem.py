@@ -39,6 +39,15 @@ class QuadTankSystem:
         self.rho = p['rho']
         self.m = np.array([0, 0, 0, 0]) # Mass of tanks
         self.h = np.array([0, 0, 0, 0]) # Height of water in tanks
+
+    def print_variables(self) -> None:
+        """
+        Prints the variables of the system. (mass and height)
+        """
+        print("Mass: ", self.m)
+        print("Height: ", self.h)
+
+        
         
 
     def set_initial_condition(self, x0):
@@ -96,6 +105,10 @@ class QuadTankSystem:
         self.m=x 
         self.h = self.m / (self.rho * self.A) # Update heights
         F = u
+        # Check if any of the heirghts are negative/NaNs
+        if np.any(np.isnan(self.h)) or np.any(self.h<0):
+            raise ValueError(f"Heights are negative or NaNs:\n Heights: {self.h}")
+
         qout = np.sqrt(2 * self.g * self.h) * self.a # Outflow of each tank (cm3/s)
 
         # Calculating in flows [cm3/s]

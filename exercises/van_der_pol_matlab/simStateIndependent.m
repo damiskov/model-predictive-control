@@ -15,7 +15,16 @@ fprintf('sigma: %d\n', sigma);
 fprintf('x0:\n');
 disp(x0);
 fprintf('Number of simulations: %d\n', Ns);
-[W, T, ~] = StdWienerProcess(tf, N, nw, Ns, seed);
+[W, T, dW] = StdWienerProcess(tf, N, nw, Ns, seed);
+
+% disp('Dimensions of W, T, dW:');
+% disp(size(W));
+% disp(size(T));
+% disp(size(dW));
+
+% % Stop running
+% return;
+
 X = zeros(length(x0), N+1, Ns);
 for i=1:Ns
     fprintf('Simulation i = %i\n', i);

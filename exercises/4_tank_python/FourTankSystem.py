@@ -102,13 +102,16 @@ class QuadTankSystem:
             dxdt (np.ndarray): Derivative of the state (mass) w.r.t time.
         """
 
+        # Check if input mass is negative, if so, set to zero
+        if np.any(x<0):
+            print("Negative mass detected, setting to zero")
+            x = np.maximum(0, x)
+         
         self.m=x 
         self.h = self.m / (self.rho * self.A) # Update heights
         F = u
-        # Check if any of the heirghts are negative/NaNs
-        if np.any(np.isnan(self.h)) or np.any(self.h<0):
-            raise ValueError(f"Heights are negative or NaNs:\n Heights: {self.h}")
-
+       
+        
         qout = np.sqrt(2 * self.g * self.h) * self.a # Outflow of each tank (cm3/s)
 
         # Calculating in flows [cm3/s]

@@ -1,0 +1,19 @@
+# Creates conda environment 
+# run: 'conda env create -f environment.yml' in this directory
+# activate: 'conda activate mpc_2024'
+name: mpc_2024
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python==3.11
+  - scipy
+  - matplotlib
+  - pip
+  - numpy
+  - jupyter
+  - ipykernel
+  - pip:
+    - casadi
+    - daqp
+

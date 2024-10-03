@@ -1,6 +1,6 @@
 import numpy as np
 
-class SDE_solver:
+class SDESolver:
 
     def __init__(self) -> None:
         # No constructor necessary for now
@@ -51,7 +51,7 @@ class SDE_solver:
             i += 1
         return x, f, J
 
-    def explicit_explicit(self, ffun, gfun, T, x0, W):
+    def explicit_explicit(self, ffun, gfun, T, x0, W, p=None):
         """
         Implementation of an explicit explicit (Euler method) SDE solver
 
@@ -73,19 +73,22 @@ class SDE_solver:
         X : array_like
             Solution of the SDE
         """
+        
+
+        
 
         N = len(T)
         nx = len(x0)
         X = np.zeros((nx, N)) # columns are the time points, rows are the states
         X[:, 0] = x0
         for k in range(N-1):
-            f = ffun(T[k], X[:, k])
-            g = gfun(T[k], X[:, k])
+            f, _ = ffun(T[k], X[:, k],p) # ps are None for now
+            g = gfun(T[k], X[:, k], p)
             dt = T[k+1] - T[k]
             dW = W[:, k+1] - W[:, k]
-            psi = X[:, k]+g*dW
+            psi = X[:, k]+(g*dW).flatten() # Handling annoying shape issues
             X[:, k+1] = psi+f*dt
-        return X
+        
     
     def implicit_explicit(self, ffun, gfun, T, x0, W):
         """
